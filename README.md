@@ -1,4 +1,4 @@
-Building a simple scalable Database systems: MySQL Cluster +  Load Balancing using Ansible Playbooks.
+Building a simple scalable Database systems: MySQL Cluster +  Load Balancing using Ansible Playbooks
 -------------------------------------------
 
 These playbooks use Ansible 2.12.1 and jinja version = 2.10.1.
@@ -11,7 +11,7 @@ Overview
 -------------------------------------------
 
 <p align="center">
-  <img src="overview" width="70%"/>
+  <img src="overview" width="75%"/>
 </p>
 
 Adding nodes
