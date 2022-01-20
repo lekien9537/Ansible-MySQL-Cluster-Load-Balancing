@@ -1,0 +1,82 @@
+[tcp default]
+# TCP PARAMETERS
+{% if SendBufferMemory is defined %}
+SendBufferMemory: {{ SendBufferMemory }} 
+{% endif %}
+{% if ReceiveBufferMemory is defined %}
+ReceiveBufferMemory: {{ ReceiveBufferMemory }} 
+{% endif %}
+
+[ndb_mgmd default]
+# Options affecting ndb_mgmd processes on all Management nodes:
+{% if management_data_dir is defined %}
+DataDir: {{ management_data_dir }} # Directory for the Management data (log files)
+{% endif %}
+
+[ndbd default]
+# Options affecting ndbd processes on all data nodes:
+{% if NumberOfReplicas is defined %}
+NoOfReplicas: {{ NumberOfReplicas }} # Number of replicas
+{% else %}
+NoOfReplicas=2
+{% endif %}
+{% if DataDir is defined %}
+DataDir: {{ DataDir }} 
+{% endif %}
+{% if LockPagesInMainMemory is defined %}
+LockPagesInMainMemory: {{ LockPagesInMainMemory }} 
+{% endif %}
+{% if DataMemory is defined %}
+DataMemory: {{ DataMemory }} 
+{% endif %}
+{% if ODirect is defined %}
+ODirect: {{ ODirect }} 
+{% endif %}
+{% if NoOfFragmentLogFiles is defined %}
+NoOfFragmentLogFiles: {{ NoOfFragmentLogFiles }} 
+{% endif %}
+{% if MaxNoOfConcurrentOperations is defined %}
+MaxNoOfConcurrentOperations: {{ MaxNoOfConcurrentOperations }} 
+{% endif %}
+{% if SchedulerSpinTimer is defined %}
+SchedulerSpinTimer: {{ SchedulerSpinTimer }} 
+{% endif %}
+{% if SchedulerExecutionTimer is defined %}
+SchedulerExecutionTimer: {{ SchedulerExecutionTimer }} 
+{% endif %}
+{% if RealTimeScheduler is defined %}
+RealTimeScheduler: {{ RealTimeScheduler }} 
+{% endif %}
+{% if TimeBetweenGlobalCheckpoints is defined %}
+TimeBetweenGlobalCheckpoints: {{ TimeBetweenGlobalCheckpoints }} 
+{% endif %}
+{% if TimeBetweenEpochs is defined %}
+TimeBetweenEpochs: {{ TimeBetweenEpochs }} 
+{% endif %}
+{% if RedoBuffer is defined %}
+RedoBuffer: {{ RedoBuffer }} 
+{% endif %}
+{% if MaxNoOfTables is defined %}
+MaxNoOfTables: {{ MaxNoOfTables }} 
+{% endif %}
+{% if MaxNoOfOrderedIndexes is defined %}
+MaxNoOfOrderedIndexes: {{ MaxNoOfOrderedIndexes }} 
+{% endif %}
+
+# Management nodes:
+{% for host in groups["ManagementNodes"] %}
+[ndb_mgmd]
+hostname={{ host }} # Hostname/IP of the Management node
+{% endfor %}
+
+# Data nodes:
+{% for host in groups["DataNodes"] %}
+[ndbd]
+hostname={{ host }} # Hostname/IP of the Data node
+{% endfor %}
+
+# API nodes:
+{% for host in groups["SQLNodes"] %}
+[mysqld]
+hostname={{ host }} # Hostname/IP of the SQL node
+{% endfor %}

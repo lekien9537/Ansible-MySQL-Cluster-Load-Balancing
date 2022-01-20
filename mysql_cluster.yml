@@ -1,0 +1,65 @@
+
+
+# Create golobal varialbe management_node_id
+# If we setting multi management nodes, we will need to know management's node id when start management node
+# with option: --initial --ndb-nodeid=NodeID
+
+- name: Create management_node_id variable
+  hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: Create localhost management_node_id file
+      file: path={{ item.path }} state={{ item.state }}
+      with_items:
+        - { path: '/tmp/management_node_id', state: 'absent' }
+        - { path: '/tmp/management_node_id', state: 'touch' }
+
+    - name: Managing management_node_id file
+      lineinfile: dest=/tmp/management_node_id line='0'
+
+# Mysql Cluster
+- name: Deploy and configure the Management nodes
+  hosts: ManagementNodes
+  order: inventory
+  serial: 1
+  roles:
+    - management
+
+- name: Deploy and configure the Data nodes
+  hosts: DataNodes
+  roles:
+    - data
+
+- name: Deploy and configure the SQL nodes
+  hosts: SQLNodes
+  roles:
+    - sql
+
+# Remove the deb files
+
+- hosts: MySQL_Cluster
+  tasks:    
+    - name: Remove deb file
+      become: true
+      shell: find {{ download_dir }} -type f -name 'mysql*' -exec rm {} \;
+
+
+# LoadBalancing
+- name: Deploy and configure HAProxy
+  hosts: LoadBalancer
+  roles:
+    - haproxy
+
+- name: Deploy and configure Keepalived - MASTER
+  hosts: LoadBalancer[0]
+  vars_files:
+    - roles/keepalived/vars/keepalived_master.yml
+  roles:
+    - keepalived
+
+- name: Deploy and configure Keepalived - Backup
+  hosts: LoadBalancer:!LoadBalancer[0]
+  vars_files:
+    - roles/keepalived/vars/keepalived_backup.yml
+  roles:
+    - keepalived

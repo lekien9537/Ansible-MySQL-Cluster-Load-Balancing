@@ -1,0 +1,14 @@
+---
+# Variables listed here are applicable to all mysql cluster groups
+
+# For installation
+# Choosing 8.x.xx mysql archived version and ubuntu version to install
+# See all the archived version 8 here: https://downloads.mysql.com/archives/cluster/
+mysql_version: 8.0.26
+ubuntu_version: 20.04
+
+# directory to download deb files
+download_dir: /tmp
+
+
+

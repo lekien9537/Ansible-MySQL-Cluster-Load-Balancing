@@ -1,0 +1,183 @@
+- name: Install dependency packages 
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ dependency_packages }}"
+  become: true
+  #become_user: root
+  
+# mysql-common
+- name: Check if mysql-common is installed
+  shell: dpkg-query -W mysql-common | grep {{ mysql_version }}
+  register: mysql_common_check
+  failed_when: mysql_common_check.rc > 1
+  changed_when: mysql_common_check.rc == 1
+
+- name: Download mysql-common
+  get_url: 
+    url="{{ mysql_common_url }}"
+    dest="{{ download_dir }}/mysql_common_{{ mysql_version }}.deb"
+  when: mysql_common_check.rc == 1
+
+- name: Install mysql-common
+  become: true
+  apt: deb="{{ download_dir }}/mysql_common_{{ mysql_version }}.deb"
+  when: mysql_common_check.rc == 1
+
+
+# mysql-cluster-community-client-plugins
+- name: Check if mysql-cluster-community-client-plugins is installed
+  shell: dpkg-query -W mysql-cluster-community-client-plugins | grep {{ mysql_version }}
+  register: client_plugins_check
+  failed_when: client_plugins_check.rc > 1
+  changed_when: client_plugins_check.rc == 1
+
+- name: Download mysql-cluster-community-client-plugins
+  get_url: 
+    url="{{ mysql_cluster_community_client_plugins_url }}"
+    dest="{{ download_dir }}/mysql_cluster_community_client_plugins_{{ mysql_version }}.deb"
+  when: client_plugins_check.rc == 1
+
+- name: Install mysql-cluster-community-client-plugins
+  become: true
+  apt: deb="{{ download_dir }}/mysql_cluster_community_client_plugins_{{ mysql_version }}.deb"
+  when: client_plugins_check.rc == 1
+
+
+# mysql-cluster-community-client-core
+- name: Check if mysql-cluster-community-client-core is installed
+  shell: dpkg-query -W mysql-cluster-community-client-core | grep {{ mysql_version }}
+  register: client_core_check
+  failed_when: client_core_check.rc > 1
+  changed_when: client_core_check.rc == 1
+
+- name: Download mysql-cluster-community-client-core
+  get_url: 
+    url="{{ mysql_cluster_community_client_core_url }}"
+    dest="{{ download_dir }}/mysql_cluster_community_client_core_{{ mysql_version }}.deb"
+  when: client_core_check.rc == 1
+
+- name: Install mysql-cluster-community-client-core
+  become: true
+  apt: deb="{{ download_dir }}/mysql_cluster_community_client_core_{{ mysql_version }}.deb"
+  when: client_core_check.rc == 1
+
+
+# mysql-cluster-community-client
+- name: Check if mysql-cluster-community-client is installed
+  shell: dpkg-query -W mysql-cluster-community-client | grep {{ mysql_version }}
+  register: client_check
+  failed_when: client_check.rc > 1
+  changed_when: client_check.rc == 1
+
+- name: Download mysql-cluster-community-client
+  get_url: 
+    url="{{ mysql_cluster_community_client_url }}"
+    dest="{{ download_dir }}/mysql_cluster_community_client_{{ mysql_version }}.deb"
+  when: client_check.rc == 1
+
+- name: Install mysql-cluster-community-client
+  become: true
+  apt: deb="{{ download_dir }}/mysql_cluster_community_client_{{ mysql_version }}.deb"
+  when: client_check.rc == 1
+
+
+# mysql-client
+- name: Check if mysql-client is installed
+  shell: dpkg-query -W mysql-client | grep {{ mysql_version }}
+  register: mysql_client_check
+  failed_when: mysql_client_check.rc > 1
+  changed_when: mysql_client_check.rc == 1
+
+- name: Download mysql-client
+  get_url: 
+    url="{{ mysql_client_url }}"
+    dest="{{ download_dir }}/mysql_client_{{ mysql_version }}.deb"
+  when: mysql_client_check.rc == 1
+
+- name: Install mysql-client
+  become: true
+  apt: deb="{{ download_dir }}/mysql_client_{{ mysql_version }}.deb"
+  when: mysql_client_check.rc == 1
+
+
+# mysql-cluster-community-server-core
+- name: Check if mysql-cluster-community-server-core is installed
+  shell: dpkg-query -W mysql-cluster-community-server-core | grep {{ mysql_version }}
+  register: server_core_check
+  failed_when: server_core_check.rc > 1
+  changed_when: server_core_check.rc == 1
+
+- name: Download mysql-cluster-community-server-core
+  get_url: 
+    url="{{ mysql_cluster_community_server_core_url }}"
+    dest="{{ download_dir }}/mysql_cluster_community_server_core_{{ mysql_version }}.deb"
+  when: server_core_check.rc == 1
+
+- name: Install mysql-cluster-community-server-core
+  become: true
+  apt: deb="{{ download_dir }}/mysql_cluster_community_server_core_{{ mysql_version }}.deb"
+  when: server_core_check.rc == 1
+
+
+
+# mysql-cluster-community-server
+- name: Check if mysql-cluster-community-server is installed
+  shell: dpkg-query -W mysql-cluster-community-server | grep {{ mysql_version }}
+  register: community_server_check
+  failed_when: community_server_check.rc > 1
+  changed_when: community_server_check.rc == 1
+
+- name: Download mysql-cluster-community-server
+  get_url: 
+    url="{{ community_server_url }}"
+    dest="{{ download_dir }}/mysql_cluster_community_server_{{ mysql_version }}.deb"
+  when: community_server_check.rc == 1
+
+- name: Set MySQL root-password before installing
+  become: true
+  debconf: 
+    name: mysql-cluster-community-server
+    question: mysql-cluster-community-server/root-pass 
+    value: "{{ root_pass }}"
+    vtype: password
+  when: community_server_check.rc == 1
+
+- name: Confirm MySQL root-password before installing
+  become: true
+  debconf: 
+    name: mysql-cluster-community-server
+    question: mysql-cluster-community-server/re-root-pass
+    value: "{{ root_pass }}"
+    vtype: password
+  when: community_server_check.rc == 1
+
+- name: Set default-auth-override before installing
+  become: true
+  debconf:
+    name: mysql-cluster-community-server
+    question: mysql-server/default-auth-override
+    vtype: string
+    value: 'Use Strong Password Encryption (RECOMMENDED)'
+  when: community_server_check.rc == 1
+
+- name: Install mysql-cluster-community-server
+  become: true
+  apt: deb="{{ download_dir }}/mysql_cluster_community_server_{{ mysql_version }}.deb"
+  when: community_server_check.rc == 1
+
+
+# Configuration file
+- name: Create configuration file
+  become: true
+  template:
+    src: sql.cnf.j2
+    dest: "/etc/mysql/mysql.conf.d/sql.cnf"
+  notify: Restart mysql
+
+- name: Restart mysql
+  meta: flush_handlers
+
+- name: Create root user for cluster
+  run_once: true
+  shell: mysql -uroot -p{{ root_pass }} -e "CREATE USER 'root'@'%' IDENTIFIED BY '{{ root_pass }}'; GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION; GRANT NDB_STORED_USER ON *.* TO 'root'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"

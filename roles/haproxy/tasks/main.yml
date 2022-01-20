@@ -1,0 +1,14 @@
+---
+- name: Install haproxy package 
+  apt:
+    name: haproxy
+    state: present
+  become: true
+  become_user: root
+  
+- name: Haproxy configuration file
+  become: true
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: Restart haproxy

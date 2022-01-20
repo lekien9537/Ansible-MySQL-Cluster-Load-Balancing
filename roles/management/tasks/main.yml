@@ -1,0 +1,50 @@
+---
+
+# mysql-cluster-community-management-server
+- name: Check if mysql-cluster-community-management-server is installed
+  shell: dpkg-query -W mysql-cluster-community-management-server | grep {{ mysql_version }}
+  register: management_server_check
+  failed_when: management_server_check.rc > 1
+  changed_when: management_server_check.rc == 1
+
+#- name: Check results
+#  debug:
+#    msg: "mysql-cluster-community-management-server_{{ mysql_version }} was installed"
+#  when: management_server_check.rc != 1
+
+- name: Download mysql-cluster-community-management-server
+  get_url: 
+    url="{{ mysql_cluster_community_management_server_url }}"
+    dest="{{ download_dir }}/mysql_cluster_community_management_server_{{ mysql_version }}.deb"
+  when: management_server_check.rc == 1
+
+- name: Install mysql-cluster-community-management-server
+  become: true
+  apt: deb="{{ download_dir }}/mysql_cluster_community_management_server_{{ mysql_version }}.deb"
+  when: management_server_check.rc == 1
+
+
+# Configuration file
+- name: Create Management configuration file
+  become: true
+  template:
+    src: config.ini.j2
+    dest: "{{ management_config_dir }}/config.ini"
+
+- name: Get management_node_id
+  delegate_to: localhost
+  #local_action: shell file=$((`cat /tmp/management_node_id` + 1)); echo $file | tee /tmp/management_node_id
+  shell: file=$((`cat /tmp/management_node_id` + 1)); echo $file | tee /tmp/management_node_id
+  register: management_node_id    
+
+- name: Init management node
+  become: true
+  command: ndb_mgmd -f {{ management_config_dir }}/config.ini --ndb-nodeid={{ management_node_id.stdout }}
+
+- name: Create Management service file
+  become: true
+  template:
+    src: ndb_mgmd.service.j2
+    dest: "/etc/systemd/system/ndb_mgmd.service"
+  notify:
+    - Reload systemd

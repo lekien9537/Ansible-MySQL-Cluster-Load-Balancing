@@ -1,0 +1,22 @@
+---
+- name: Install keepalived package 
+  apt:
+    name: keepalived
+    state: present
+  become: true
+  become_user: root
+
+- name: Get host interface
+  shell: ip -4 -o a | grep {{ ansible_host }} | cut -d ' ' -f 2
+  register: host_interface
+  failed_when: host_interface.rc > 0
+
+- name: Keepalived configuration file
+  become: true
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  notify: 
+    - Restart keepalived
+
+# hostvars['LoadBalancer'].host

@@ -1,0 +1,9 @@
+---
+# Haproxy
+# Port to access MySQL Cluster
+expose_port: 3360
+vip: 172.16.4.2
+
+# Keepalived
+virtual_router_id: 111 # VRID - must be between 1 & 255
+vip_cidr: 172.16.4.2/24 # must be same VIP Haproxy

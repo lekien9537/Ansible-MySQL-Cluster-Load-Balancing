@@ -1,0 +1,6 @@
+---
+# The variables file used by the playbooks in the ManagementNodes group.
+
+# For installation
+
+mysql_cluster_community_management_server_url: https://downloads.mysql.com/archives/get/p/14/file/mysql-cluster-community-management-server_{{ mysql_version }}-1ubuntu{{ ubuntu_version }}_amd64.deb

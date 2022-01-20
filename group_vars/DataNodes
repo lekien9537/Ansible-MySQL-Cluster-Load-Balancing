@@ -1,0 +1,5 @@
+---
+
+# For installation
+mysql_cluster_community_data_node_url: https://downloads.mysql.com/archives/get/p/14/file/mysql-cluster-community-data-node_{{ mysql_version }}-1ubuntu{{ ubuntu_version }}_amd64.deb
+

@@ -1,0 +1,88 @@
+---
+#- name: Install dependency package 
+#  apt:
+#    name: libclass-methodmaker-perl
+#    state: present
+#  become: true
+#  become_user: root
+  
+- name: Install dependency packages 
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ dependency_packages }}"
+  become: true
+  become_user: root
+
+- name: Check if mysql-cluster-community-data-node is installed
+  shell: dpkg-query -W mysql-cluster-community-data-node | grep {{ mysql_version }}
+  register: data_node_check
+  failed_when: data_node_check.rc > 1
+  changed_when: data_node_check.rc == 1
+
+
+- name: Download mysql-cluster-community-data-node
+  get_url: 
+    url="{{ mysql_cluster_community_data_node_url }}"
+    dest="{{ download_dir }}/mysql_cluster_community_data_node_{{ mysql_version }}.deb"
+  when: data_node_check.rc == 1
+
+- name: Install mysql-cluster-community-data-node
+  become: true
+  #become_user: root
+  apt: deb="{{ download_dir }}/mysql_cluster_community_data_node_{{ mysql_version }}.deb"
+  when: data_node_check.rc == 1
+
+- name: Check the my.cnf file
+  stat:
+    path: /etc/mysql/my.cnf
+  register: check_my_config
+
+- name: Create mysql folder
+  become: true
+  file:
+      path: /etc/mysql
+      state: directory
+  when: check_my_config.stat.exists == False
+
+- name: Create my.cnf configuration file
+  become: true
+  template:
+    src: my.cnf.j2
+    dest: "/etc/mysql/my.cnf"
+  when: check_my_config.stat.exists == False
+
+- name: Create temporary configuration file
+  become: true
+  template:
+    src: my.cnf.j2
+    dest: "/tmp/my.cnf"
+  when: check_my_config.stat.exists == True
+
+- name: Append my.cnf with content of temporary file
+  become: true
+  shell: cat /tmp/my.cnf >> /etc/mysql/my.cnf
+  #args:
+  #  chdir: "/tmp"
+  when: check_my_config.stat.exists == True
+
+- name: Delete temporary file
+  become: true
+  file:
+    path: /tmp/my.cnf
+    state: absent
+  when: check_my_config.stat.exists == True
+
+
+# Create ndbd service
+- name: Create ndbd service file
+  become: true
+  copy:
+    src: ndbd.service 
+    dest: /etc/systemd/system/ndbd.service
+  notify:
+    - Reload systemd
+    - Start ndbd
+
+
+   

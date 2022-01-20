@@ -1,0 +1,16 @@
+---
+# The variables file used by the playbooks in the DataNodes group.
+
+mysql_cluster_community_server_core_url: https://downloads.mysql.com/archives/get/p/14/file/mysql-cluster-community-server-core_{{ mysql_version }}-1ubuntu{{ ubuntu_version }}_amd64.deb
+
+mysql_common_url: https://downloads.mysql.com/archives/get/p/14/file/mysql-common_{{ mysql_version }}-1ubuntu{{ ubuntu_version }}_amd64.deb
+
+mysql_cluster_community_client_plugins_url: https://downloads.mysql.com/archives/get/p/14/file/mysql-cluster-community-client-plugins_{{ mysql_version }}-1ubuntu{{ ubuntu_version }}_amd64.deb
+
+mysql_cluster_community_client_core_url: https://downloads.mysql.com/archives/get/p/14/file/mysql-cluster-community-client-core_{{ mysql_version }}-1ubuntu{{ ubuntu_version }}_amd64.deb
+
+mysql_cluster_community_client_url: https://downloads.mysql.com/archives/get/p/14/file/mysql-cluster-community-client_{{ mysql_version }}-1ubuntu{{ ubuntu_version }}_amd64.deb
+
+mysql_client_url: https://downloads.mysql.com/archives/get/p/14/file/mysql-client_{{ mysql_version }}-1ubuntu{{ ubuntu_version }}_amd64.deb
+
+community_server_url: https://downloads.mysql.com/archives/get/p/14/file/mysql-cluster-community-server_{{ mysql_version }}-1ubuntu{{ ubuntu_version }}_amd64.deb

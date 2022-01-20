@@ -1,0 +1,22 @@
+---
+
+# Start management node
+#- name: Init management node
+#  become: true
+#  shell: ndb_mgmd
+
+
+- name: Reload systemd
+  become: true
+  systemd:
+    daemon_reload: yes
+
+#- name: Start ndb_mgmd
+#  command: /bin/bash /tmp/management.init
+
+- name: Start ndb_mgmd
+  become: true
+  service:
+    name: ndb_mgmd
+    state: started
+    enabled: true

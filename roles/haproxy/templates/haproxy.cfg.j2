@@ -1,0 +1,17 @@
+frontend Local_Server
+    bind *:{{ expose_port }}
+    mode tcp
+    option tcplog
+    default_backend MySQL_Cluster
+
+backend static
+        balance leastconn
+        server static {{ vip }}:{{ expose_port }}
+
+backend  MySQL_Cluster
+    mode tcp
+    option tcplog
+    balance leastconn
+{% for host in groups["SQLNodes"] %}
+    server {{ host }} {{ host }}:3306 check
+{% endfor %}
